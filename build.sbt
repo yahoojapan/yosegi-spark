@@ -19,6 +19,7 @@ name := "Yosegi Spark"
 version := "1.0"
 scalaVersion := "2.11.8"
 fork := true
+organization := "jp.co.yahoo.yosegi"
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
 
@@ -35,6 +36,16 @@ libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % "2.4.0"
 libraryDependencies += "jp.co.yahoo.yosegi" % "yosegi" % "0.9.0"
 
 
+// release for Maven
+publishMavenStyle := true
+publishArtifact in Test := false
+pomIncludeRepository := { _ => false }
+
+
+description := "Yosegi package."
+licenses := List("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+homepage := Some(url("https://github.com/yahoojapan/yosegi-spark"))
+
 scmInfo := Some(
   ScmInfo(
     url("https://github.com/yahoojapan/yosegi-spark"),
@@ -42,26 +53,14 @@ scmInfo := Some(
   )
 )
 
-/*
 developers := List(
   Developer(
-    id = "koijima",
-    name = "Koji Ijima",
+    id    = "koijima",
+    name  = "Koji Ijima",
     email = "kijima@yahoo-corp.jp",
-    url = url("")
-  ),
-  Developer(
-    id = "yoto",
-    name = "Yasunori Ohto",
-    email = "yoto@yahoo-corp.jp",
-    url = url("")
+    url   = url("http://")
   )
 )
-*/
-
-description := "Yosegi package."
-licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-homepage := Some(url("https://github.com/yahoojapan/yosegi"))
 
 publishMavenStyle := true
 publishArtifact in Test := false
@@ -72,8 +71,4 @@ publishTo := {
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
-
-useGpg := true
-pgpReadOnly := false
-credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")
 
