@@ -159,6 +159,7 @@ public final class FilterConnectorFactory {
     dispatch.put(Long.class,    (v) -> new NumberFilter(type, new LongObj(((Long)v).longValue())));
     dispatch.put(Float.class,   (v) -> new NumberFilter(type, new FloatObj(((Float)v).floatValue())));
     dispatch.put(Double.class,  (v) -> new NumberFilter(type, new DoubleObj(((Double)v).doubleValue())));
+    dispatch.put(java.sql.Timestamp.class,  (v) -> new NumberFilter(type, new LongObj(((java.sql.Timestamp)v).getTime())));
   }
 
   @FunctionalInterface

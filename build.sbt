@@ -20,6 +20,8 @@ version := "1.0"
 scalaVersion := "2.11.8"
 fork := true
 
+val mavenLocal = "Local Maven Repository" at "file://"+Path.userHome+"/.m2/repository"
+
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
 
 libraryDependencies += "junit" % "junit" % "4.12" % "test"
@@ -32,4 +34,4 @@ libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.
 libraryDependencies += "org.apache.spark" % "spark-core_2.11" % "2.4.0"
 libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % "2.4.0"
 
-libraryDependencies += "jp.co.yahoo.yosegi" % "yosegi" % "0.9.0"
+libraryDependencies += "jp.co.yahoo.yosegi" % "yosegi" % "0.10.7"

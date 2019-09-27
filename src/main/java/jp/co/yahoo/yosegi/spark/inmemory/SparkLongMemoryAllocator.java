@@ -19,17 +19,84 @@ package jp.co.yahoo.yosegi.spark.inmemory;
 
 import java.io.IOException;
 
+import org.apache.spark.sql.execution.vectorized.Dictionary;
 import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
 public class SparkLongMemoryAllocator implements IMemoryAllocator{
 
+  private class SparkLongDictionary implements Dictionary,IDictionary {
+
+    private final long[] longArray;
+
+    public SparkLongDictionary( final int dicSize ) {
+      longArray = new long[dicSize];
+    }
+
+    @Override
+    public byte[] decodeToBinary( final int id ) {
+      throw new UnsupportedOperationException( "decodeToBinary is not supported." );
+    }
+
+    @Override
+    public int decodeToInt( final int id ) {
+      throw new UnsupportedOperationException( "decodeToInt is not supported." );
+    }
+
+    @Override
+    public long decodeToLong( final int id ) {
+      return longArray[id];
+    }
+
+    @Override
+    public float decodeToFloat( final int id ) {
+      throw new UnsupportedOperationException( "decodeToFloat is not supported." );
+    }
+
+    @Override
+    public double decodeToDouble( final int id ) {
+      throw new UnsupportedOperationException( "decodeToDouble is not supported." );
+    }
+
+    @Override
+    public void setByte(
+        final int index ,
+        final byte value ) throws IOException {
+      setLong( index , (long)value );
+    }
+
+    @Override
+    public void setShort(
+        final int index ,
+        final short value ) throws IOException {
+      setLong( index , (long)value );
+    }
+
+    @Override
+    public void setInteger(
+        final int index ,
+        final int value ) throws IOException {
+      setLong( index , (long)value );
+    }
+
+    @Override
+    public void setLong(
+        final int index ,
+        final long value ) throws IOException {
+       longArray[index]= value;
+    }
+
+  }
+
   private final WritableColumnVector vector;
   private final int vectorSize;
+
+  private WritableColumnVector idxVector;
 
   public SparkLongMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
     this.vector = vector;
@@ -135,6 +202,22 @@ public class SparkLongMemoryAllocator implements IMemoryAllocator{
   @Override
   public IMemoryAllocator getChild( final String columnName , final ColumnType type ) throws IOException{
     throw new UnsupportedOperationException( "Unsupported method getChild()" );
+  }
+
+  @Override
+  public IDictionary createDictionary( final int size ) throws IOException {
+    idxVector = vector.reserveDictionaryIds( vectorSize );
+    SparkLongDictionary dic = new SparkLongDictionary( size );
+    vector.setDictionary( dic );
+    return dic;
+  }
+
+  @Override
+  public void setFromDictionary(
+      final int index ,
+      final int dicIndex ,
+      final IDictionary dic ) throws IOException {
+    idxVector.putInt( index , dicIndex );
   }
 
 }

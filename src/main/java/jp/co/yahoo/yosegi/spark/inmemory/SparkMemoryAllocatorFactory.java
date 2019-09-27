@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.spark.sql.types.*;
 import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.NullMemoryAllocator;
 
 
 public final class SparkMemoryAllocatorFactory {
@@ -40,6 +41,8 @@ public final class SparkMemoryAllocatorFactory {
     dispatch.put(DataTypes.LongType.getClass(),    (v, rc) -> new SparkLongMemoryAllocator(v, rc));
     dispatch.put(DataTypes.FloatType.getClass(),   (v, rc) -> new SparkFloatMemoryAllocator(v, rc));
     dispatch.put(DataTypes.DoubleType.getClass(),  (v, rc) -> new SparkDoubleMemoryAllocator(v, rc));
+    dispatch.put(DataTypes.TimestampType.getClass(),  (v, rc) -> new SparkLongMemoryAllocator(v, rc));
+    dispatch.put(DecimalType.class,  (v, rc) -> new SparkDecimalMemoryAllocator(v, rc));
 
     dispatch.put(MapType.class, (vector, rowCount) -> {
       if (!(vector.getChild(0).dataType() instanceof StringType)) {
@@ -52,6 +55,9 @@ public final class SparkMemoryAllocatorFactory {
   private SparkMemoryAllocatorFactory() {}
 
   public static IMemoryAllocator get(final WritableColumnVector vector, final int rowCount) {
+    if ( vector == null ) {
+      return NullMemoryAllocator.INSTANCE;
+    }
     MemoryAllocatorFactory factory = dispatch.get(vector.dataType().getClass());
     if (Objects.isNull(factory)) throw new UnsupportedOperationException(makeErrorMessage(vector));
     return factory.get(vector, rowCount);
