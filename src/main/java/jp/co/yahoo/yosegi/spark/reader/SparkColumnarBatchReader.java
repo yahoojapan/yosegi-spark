@@ -99,8 +99,8 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
       return result;
     }
     for( int i = 0 ; i < childColumns.length ; i++ ){
-      if( childColumns[i] != null ){
-       childColumns[i].reset();
+      if ( childColumns[i] != null ) {
+        childColumns[i].reset();
       }
     }
     List<ColumnBinary> columnBinaryList = reader.nextRaw();
@@ -133,8 +133,10 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
       }
       int index =  keyIndexMap.get( columnBinary.columnName ).intValue();
       IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
-      if( childColumns[index] == null && newCreate ){
+      if ( childColumns[index] == null || newCreate ) {
         childColumns[index] = new OnHeapColumnVector( spreadSize , fields[index].dataType() );
+      } else {
+        childColumns[index].reserve( spreadSize );
       }
       IMemoryAllocator childMemoryAllocator = SparkMemoryAllocatorFactory.get( childColumns[index] , spreadSize );
       maker.loadInMemoryStorage( columnBinary , childMemoryAllocator );

@@ -47,61 +47,6 @@ public class SparkBooleanMemoryAllocator implements IMemoryAllocator{
   }
 
   @Override
-  public void setByte( final int index , final byte value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setByte()" );
-  }
-
-  @Override
-  public void setShort( final int index , final short value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setShort()" );
-  }
-
-  @Override
-  public void setInteger( final int index , final int value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setInteger()" );
-  }
-
-  @Override
-  public void setLong( final int index , final long value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setLong()" );
-  }
-
-  @Override
-  public void setFloat( final int index , final float value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setFloat()" );
-  }
-
-  @Override
-  public void setDouble( final int index , final double value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setDouble()" );
-  }
-
-  @Override
-  public void setBytes( final int index , final byte[] value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setBytes()" );
-  }
-
-  @Override
-  public void setBytes( final int index , final byte[] value , final int start , final int length ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setBytes()" );
-  }
-
-  @Override
-  public void setString( final int index , final String value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setString()" );
-  }
-
-  @Override
-  public void setString( final int index , final char[] value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setString()" );
-  }
-
-  @Override
-  public void setString( final int index , final char[] value , final int start , final int length ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setString()" );
-  }
-
-  @Override
   public void setPrimitiveObject( final int index , final PrimitiveObject value ) throws IOException{
     if( value == null ){
       setNull( index );
@@ -109,11 +54,6 @@ public class SparkBooleanMemoryAllocator implements IMemoryAllocator{
     else{
       setBoolean( index , value.getBoolean() );
     }
-  }
-
-  @Override
-  public void setArrayIndex( final int index , final int start , final int length ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setArrayIndex()" );
   }
 
   @Override
@@ -126,11 +66,6 @@ public class SparkBooleanMemoryAllocator implements IMemoryAllocator{
   @Override
   public int getValueCount() throws IOException{
     return vectorSize;
-  }
-
-  @Override
-  public IMemoryAllocator getChild( final String columnName , final ColumnType type ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method getChild()" );
   }
 
 }

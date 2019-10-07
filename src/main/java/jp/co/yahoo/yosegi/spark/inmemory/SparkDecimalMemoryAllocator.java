@@ -19,75 +19,20 @@ package jp.co.yahoo.yosegi.spark.inmemory;
 
 import java.io.IOException;
 
-import org.apache.spark.sql.execution.vectorized.Dictionary;
 import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.spark.sql.types.Decimal;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
-import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
-public class SparkBytesMemoryAllocator implements IMemoryAllocator{
-
-  private class SparkBytesDictionary implements Dictionary,IDictionary {
-
-    private final byte[][] binaryLinkArray;
-    private final int[] startArray;
-    private final int[] lengthArray;
-
-    public SparkBytesDictionary( final int dicSize ) {
-      binaryLinkArray = new byte[dicSize][];
-      startArray = new int[dicSize];
-      lengthArray = new int[dicSize];
-    }
-
-    @Override
-    public byte[] decodeToBinary( final int id ) {
-      byte[] result = new byte[lengthArray[id]];
-      System.arraycopy( binaryLinkArray[id] , startArray[id] , result , 0 , result.length );
-      return result;
-    }
-
-    @Override
-    public int decodeToInt( final int id ) {
-      throw new UnsupportedOperationException( "decodeToInt is not supported." );
-    }
-
-    @Override
-    public long decodeToLong( final int id ) {
-      throw new UnsupportedOperationException( "decodeToLong is not supported." );
-    }
-
-    @Override
-    public float decodeToFloat( final int id ) {
-      throw new UnsupportedOperationException( "decodeToFloat is not supported." );
-    }
-
-    @Override
-    public double decodeToDouble( final int id ) {
-      throw new UnsupportedOperationException( "decodeToDouble is not supported." );
-    }
-
-    @Override
-    public void setBytes(
-        final int index ,
-        final byte[] value ,
-        final int start ,
-        final int length ) throws IOException {
-      binaryLinkArray[index] = value;
-      startArray[index] = start;
-      lengthArray[index] = length;
-    }
-
-  }
+public class SparkDecimalMemoryAllocator implements IMemoryAllocator{
 
   private final WritableColumnVector vector;
   private final int vectorSize;
 
-  private WritableColumnVector idxVector;
-
-  public SparkBytesMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
+  public SparkDecimalMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
     this.vector = vector;
     this.vectorSize = vectorSize;
   }
@@ -104,22 +49,24 @@ public class SparkBytesMemoryAllocator implements IMemoryAllocator{
 
   @Override
   public void setByte( final int index , final byte value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setByte()" );
+    setInteger( index , (int)value );
   }
 
   @Override
   public void setShort( final int index , final short value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setShort()" );
+    setInteger( index , (int)value );
   }
 
   @Override
   public void setInteger( final int index , final int value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setInteger()" );
+    Decimal sparkDecimal = Decimal.apply( value );
+    vector.putDecimal( index , sparkDecimal , sparkDecimal.precision() );
   }
 
   @Override
   public void setLong( final int index , final long value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setLong()" );
+    Decimal sparkDecimal = Decimal.apply( value );
+    vector.putDecimal( index , sparkDecimal , sparkDecimal.precision() );
   }
 
   @Override
@@ -129,7 +76,8 @@ public class SparkBytesMemoryAllocator implements IMemoryAllocator{
 
   @Override
   public void setDouble( final int index , final double value ) throws IOException{
-    throw new UnsupportedOperationException( "Unsupported method setDouble()" );
+    Decimal sparkDecimal = Decimal.apply( value );
+    vector.putDecimal( index , sparkDecimal , sparkDecimal.precision() );
   }
 
   @Override
@@ -139,22 +87,23 @@ public class SparkBytesMemoryAllocator implements IMemoryAllocator{
 
   @Override
   public void setBytes( final int index , final byte[] value , final int start , final int length ) throws IOException{
-    vector.putByteArray( index , value , start , length );
+    setPrimitiveObject( index , new BytesObj( value , start , length ) );
   }
 
   @Override
   public void setString( final int index , final String value ) throws IOException{
-    setPrimitiveObject( index , new StringObj( value ) );
+    Decimal sparkDecimal = Decimal.apply( value );
+    vector.putDecimal( index , sparkDecimal , sparkDecimal.precision() );
   }
 
   @Override
   public void setString( final int index , final char[] value ) throws IOException{
-    setPrimitiveObject( index , new StringObj( new String( value ) ) );
+    setString( index , new String( value ) );
   }
 
   @Override
   public void setString( final int index , final char[] value , final int start , final int length ) throws IOException{
-    setPrimitiveObject( index , new StringObj( new String( value , start , length ) ) );
+    setString( index , new String( value , start , length ) );
   }
 
   @Override
@@ -164,8 +113,7 @@ public class SparkBytesMemoryAllocator implements IMemoryAllocator{
     }
     else{
       try{
-        byte[] binary = value.getBytes();
-        setBytes( index , binary , 0 , binary.length );
+        setString( index , value.getString() );
       }catch( Exception e ){
         setNull( index );
       }
@@ -192,22 +140,6 @@ public class SparkBytesMemoryAllocator implements IMemoryAllocator{
   @Override
   public IMemoryAllocator getChild( final String columnName , final ColumnType type ) throws IOException{
     throw new UnsupportedOperationException( "Unsupported method getChild()" );
-  }
-
-  @Override
-  public IDictionary createDictionary( final int size ) throws IOException {
-    idxVector = vector.reserveDictionaryIds( vectorSize );
-    SparkBytesDictionary dic = new SparkBytesDictionary( size );
-    vector.setDictionary( dic );
-    return dic;
-  }
-
-  @Override
-  public void setFromDictionary(
-      final int index ,
-      final int dicIndex ,
-      final IDictionary dic ) throws IOException {
-    idxVector.putInt( index , dicIndex );
   }
 
 }

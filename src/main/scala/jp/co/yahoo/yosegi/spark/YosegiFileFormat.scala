@@ -124,7 +124,7 @@ class YosegiFileFormat extends FileFormat with DataSourceRegister with Serializa
       val partSchema:DataType = DataType.fromJson( partitionSchemaJson )
       assert(file.partitionValues.numFields == partitionSchema.size )
       val path:Path = new Path( new URI(file.filePath) ) 
-      val fs:FileSystem = FileSystem.get( broadcastedHadoopConf.value.value )
+      val fs:FileSystem = path.getFileSystem( broadcastedHadoopConf.value.value )
       val yosegiConfig = new jp.co.yahoo.yosegi.config.Configuration()
       if( expandOption.nonEmpty ){
         yosegiConfig.set( "spread.reader.expand.column" , expandOption.get )
@@ -135,7 +135,9 @@ class YosegiFileFormat extends FileFormat with DataSourceRegister with Serializa
       yosegiConfig.set( "spread.reader.read.column.names" , projectionPushdownJson );
 
       var reader:IColumnarBatchReader = null
-      if( enableArrowReader.nonEmpty && "true".equals( enableArrowReader.get ) ){
+      if( enableArrowReader.nonEmpty && "true".equals( enableArrowReader.get ) 
+          || expandOption.nonEmpty
+          || flattenOption.nonEmpty ){
         reader = new SparkArrowColumnarBatchReader( partSchema.asInstanceOf[StructType] , file.partitionValues , readSchema.asInstanceOf[StructType] , fs.open( path ) , fs.getFileStatus( path ).getLen() , file.start , file.length , yosegiConfig , node )
       }
       else{

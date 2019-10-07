@@ -19,17 +19,63 @@ package jp.co.yahoo.yosegi.spark.inmemory;
 
 import java.io.IOException;
 
+import org.apache.spark.sql.execution.vectorized.Dictionary;
 import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
 public class SparkDoubleMemoryAllocator implements IMemoryAllocator{
 
+  private class SparkDoubleDictionary implements Dictionary,IDictionary {
+
+    private final double[] doubleArray;
+
+    public SparkDoubleDictionary( final int dicSize ) {
+      doubleArray = new double[dicSize];
+    }
+
+    @Override
+    public byte[] decodeToBinary( final int id ) {
+      throw new UnsupportedOperationException( "decodeToBinary is not supported." );
+    }
+
+    @Override
+    public int decodeToInt( final int id ) {
+      throw new UnsupportedOperationException( "decodeToInt is not supported." );
+    }
+
+    @Override
+    public long decodeToLong( final int id ) {
+      throw new UnsupportedOperationException( "decodeToLong is not supported." );
+    }
+
+    @Override
+    public float decodeToFloat( final int id ) {
+      throw new UnsupportedOperationException( "decodeToFloat is not supported." );
+    }
+
+    @Override
+    public double decodeToDouble( final int id ) {
+      return doubleArray[id];
+    }
+
+    @Override
+    public void setDouble(
+        final int index ,
+        final double value ) throws IOException {
+       doubleArray[index]= value;
+    }
+
+  }
+
   private final WritableColumnVector vector;
   private final int vectorSize;
+
+  private WritableColumnVector idxVector;
 
   public SparkDoubleMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
     this.vector = vector;
@@ -135,6 +181,22 @@ public class SparkDoubleMemoryAllocator implements IMemoryAllocator{
   @Override
   public IMemoryAllocator getChild( final String columnName , final ColumnType type ) throws IOException{
     throw new UnsupportedOperationException( "Unsupported method getChild()" );
+  }
+
+  @Override
+  public IDictionary createDictionary( final int size ) throws IOException {
+    idxVector = vector.reserveDictionaryIds( vectorSize );
+    SparkDoubleDictionary dic = new SparkDoubleDictionary( size );
+    vector.setDictionary( dic );
+    return dic;
+  }
+
+  @Override
+  public void setFromDictionary(
+      final int index ,
+      final int dicIndex ,
+      final IDictionary dic ) throws IOException {
+    idxVector.putInt( index , dicIndex );
   }
 
 }

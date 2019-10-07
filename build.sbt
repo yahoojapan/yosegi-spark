@@ -33,7 +33,7 @@ libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.
 libraryDependencies += "org.apache.spark" % "spark-core_2.11" % "2.4.0"
 libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % "2.4.0"
 
-libraryDependencies += "jp.co.yahoo.yosegi" % "yosegi" % "0.9.0"
+libraryDependencies += "jp.co.yahoo.yosegi" % "yosegi" % "0.10.7"
 
 
 // release for Maven
