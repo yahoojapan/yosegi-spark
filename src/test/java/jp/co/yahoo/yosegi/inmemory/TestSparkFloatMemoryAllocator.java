@@ -23,7 +23,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.apache.spark.sql.types.*;
-import org.apache.spark.sql.execution.vectorized.OnHeapColumnVector;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
+import org.apache.spark.memory.MemoryMode;
 
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
@@ -31,13 +32,13 @@ public class TestSparkFloatMemoryAllocator{
 
   @Test
   public void T_newInstance_1(){
-    OnHeapColumnVector vector = new OnHeapColumnVector( 5 , new FloatType() );
+    ColumnVector vector = ColumnVector.allocate( 5 , new FloatType() , MemoryMode.OFF_HEAP );
     IMemoryAllocator allocator = new SparkFloatMemoryAllocator( vector , 5 );
   }
 
   @Test
   public void T_set_1() throws IOException{
-    OnHeapColumnVector vector = new OnHeapColumnVector( 5 , new FloatType() );
+    ColumnVector vector = ColumnVector.allocate( 5 , new FloatType() , MemoryMode.OFF_HEAP );
     IMemoryAllocator allocator = new SparkFloatMemoryAllocator( vector , 5 );
 
     allocator.setFloat( 0 , 1f );
@@ -57,7 +58,7 @@ public class TestSparkFloatMemoryAllocator{
 
   @Test
   public void T_set_2() throws IOException{
-    OnHeapColumnVector vector = new OnHeapColumnVector( 5 , new FloatType() );
+    ColumnVector vector = ColumnVector.allocate( 5 , new FloatType() , MemoryMode.OFF_HEAP );
     IMemoryAllocator allocator = new SparkFloatMemoryAllocator( vector , 5 );
 
     allocator.setNull( 0 );
@@ -77,7 +78,7 @@ public class TestSparkFloatMemoryAllocator{
 
   @Test
   public void T_set_3() throws IOException{
-    OnHeapColumnVector vector = new OnHeapColumnVector( 5 , new FloatType() );
+    ColumnVector vector = ColumnVector.allocate( 5 , new FloatType() , MemoryMode.OFF_HEAP );
     IMemoryAllocator allocator = new SparkFloatMemoryAllocator( vector , 5 );
 
     allocator.setValueCount( 0 );
