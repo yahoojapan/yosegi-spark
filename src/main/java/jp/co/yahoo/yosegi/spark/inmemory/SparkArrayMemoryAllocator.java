@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.apache.spark.sql.types.*;
-import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
@@ -32,10 +32,10 @@ import jp.co.yahoo.yosegi.inmemory.NullMemoryAllocator;
 
 public class SparkArrayMemoryAllocator implements IMemoryAllocator{
 
-  private final WritableColumnVector vector;
+  private final ColumnVector vector;
   private final int vectorSize;
 
-  public SparkArrayMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
+  public SparkArrayMemoryAllocator( final ColumnVector vector , final int vectorSize ){
     this.vector = vector;
     this.vectorSize = vectorSize;
   }
@@ -59,8 +59,8 @@ public class SparkArrayMemoryAllocator implements IMemoryAllocator{
 
   @Override
   public IMemoryAllocator getArrayChild( final int childLength , final ColumnType type ) throws IOException{
-    vector.getChild(0).reserve( childLength );
-    return SparkMemoryAllocatorFactory.get( vector.getChild(0) , childLength );
+    vector.getChildColumn(0).reserve( childLength );
+    return SparkMemoryAllocatorFactory.get( vector.getChildColumn(0) , childLength );
   }
 
   @Override

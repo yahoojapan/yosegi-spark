@@ -19,8 +19,10 @@ package jp.co.yahoo.yosegi.spark.inmemory;
 
 import java.io.IOException;
 
-import org.apache.spark.sql.execution.vectorized.Dictionary;
-import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.parquet.io.api.Binary;
+import org.apache.parquet.column.Encoding;
+import org.apache.parquet.column.Dictionary;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
@@ -30,23 +32,23 @@ import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
 public class SparkBytesMemoryAllocator implements IMemoryAllocator{
 
-  private class SparkBytesDictionary implements Dictionary,IDictionary {
+  private class SparkBytesDictionary extends Dictionary implements IDictionary {
 
-    private final byte[][] binaryLinkArray;
-    private final int[] startArray;
-    private final int[] lengthArray;
+    private final Binary[] binaryLinkArray;
 
     public SparkBytesDictionary( final int dicSize ) {
-      binaryLinkArray = new byte[dicSize][];
-      startArray = new int[dicSize];
-      lengthArray = new int[dicSize];
+      super( Encoding.PLAIN );
+      binaryLinkArray = new Binary[dicSize];
     }
 
     @Override
-    public byte[] decodeToBinary( final int id ) {
-      byte[] result = new byte[lengthArray[id]];
-      System.arraycopy( binaryLinkArray[id] , startArray[id] , result , 0 , result.length );
-      return result;
+    public int getMaxId() {
+      return binaryLinkArray.length - 1;
+    }
+
+    @Override
+    public Binary decodeToBinary( final int id ) {
+      return binaryLinkArray[id];
     }
 
     @Override
@@ -75,19 +77,17 @@ public class SparkBytesMemoryAllocator implements IMemoryAllocator{
         final byte[] value ,
         final int start ,
         final int length ) throws IOException {
-      binaryLinkArray[index] = value;
-      startArray[index] = start;
-      lengthArray[index] = length;
+      binaryLinkArray[index] = Binary.fromByteArray( value , start , length );
     }
 
   }
 
-  private final WritableColumnVector vector;
+  private final ColumnVector vector;
   private final int vectorSize;
 
-  private WritableColumnVector idxVector;
+  private ColumnVector idxVector;
 
-  public SparkBytesMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
+  public SparkBytesMemoryAllocator( final ColumnVector vector , final int vectorSize ){
     this.vector = vector;
     this.vectorSize = vectorSize;
   }

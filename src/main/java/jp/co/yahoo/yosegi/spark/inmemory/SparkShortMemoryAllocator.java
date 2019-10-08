@@ -19,7 +19,7 @@ package jp.co.yahoo.yosegi.spark.inmemory;
 
 import java.io.IOException;
 
-import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
@@ -28,10 +28,10 @@ import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
 public class SparkShortMemoryAllocator implements IMemoryAllocator{
 
-  private final WritableColumnVector vector;
+  private final ColumnVector vector;
   private final int vectorSize;
 
-  public SparkShortMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
+  public SparkShortMemoryAllocator( final ColumnVector vector , final int vectorSize ){
     this.vector = vector;
     this.vectorSize = vectorSize;
   }

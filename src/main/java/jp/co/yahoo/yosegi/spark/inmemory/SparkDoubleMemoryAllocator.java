@@ -19,8 +19,9 @@ package jp.co.yahoo.yosegi.spark.inmemory;
 
 import java.io.IOException;
 
-import org.apache.spark.sql.execution.vectorized.Dictionary;
-import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.parquet.column.Encoding;
+import org.apache.parquet.column.Dictionary;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
@@ -30,17 +31,18 @@ import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
 public class SparkDoubleMemoryAllocator implements IMemoryAllocator{
 
-  private class SparkDoubleDictionary implements Dictionary,IDictionary {
+  private class SparkDoubleDictionary extends Dictionary implements IDictionary {
 
     private final double[] doubleArray;
 
     public SparkDoubleDictionary( final int dicSize ) {
+      super( Encoding.PLAIN );
       doubleArray = new double[dicSize];
     }
 
     @Override
-    public byte[] decodeToBinary( final int id ) {
-      throw new UnsupportedOperationException( "decodeToBinary is not supported." );
+    public int getMaxId() {
+      return doubleArray.length - 1;
     }
 
     @Override
@@ -72,12 +74,12 @@ public class SparkDoubleMemoryAllocator implements IMemoryAllocator{
 
   }
 
-  private final WritableColumnVector vector;
+  private final ColumnVector vector;
   private final int vectorSize;
 
-  private WritableColumnVector idxVector;
+  private ColumnVector idxVector;
 
-  public SparkDoubleMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
+  public SparkDoubleMemoryAllocator( final ColumnVector vector , final int vectorSize ){
     this.vector = vector;
     this.vectorSize = vectorSize;
   }

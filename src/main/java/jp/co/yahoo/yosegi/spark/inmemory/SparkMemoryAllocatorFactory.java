@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.spark.sql.types.*;
-import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.NullMemoryAllocator;
 
@@ -45,7 +45,7 @@ public final class SparkMemoryAllocatorFactory {
     dispatch.put(DecimalType.class,  (v, rc) -> new SparkDecimalMemoryAllocator(v, rc));
 
     dispatch.put(MapType.class, (vector, rowCount) -> {
-      if (!(vector.getChild(0).dataType() instanceof StringType)) {
+      if (!(vector.getChildColumn(0).dataType() instanceof StringType)) {
         throw new UnsupportedOperationException(makeErrorMessage(vector) + ". Map key type is string only.");
       }
       return new SparkMapMemoryAllocator(vector, rowCount);
@@ -54,7 +54,7 @@ public final class SparkMemoryAllocatorFactory {
 
   private SparkMemoryAllocatorFactory() {}
 
-  public static IMemoryAllocator get(final WritableColumnVector vector, final int rowCount) {
+  public static IMemoryAllocator get(final ColumnVector vector, final int rowCount) {
     if ( vector == null ) {
       return NullMemoryAllocator.INSTANCE;
     }
@@ -63,13 +63,13 @@ public final class SparkMemoryAllocatorFactory {
     return factory.get(vector, rowCount);
   }
 
-  private static String makeErrorMessage(final WritableColumnVector vector) {
+  private static String makeErrorMessage(final ColumnVector vector) {
     return "Unsupported datatype : " + vector.dataType().toString();
   }
 
   @FunctionalInterface
   private static interface MemoryAllocatorFactory {
-    IMemoryAllocator get(final WritableColumnVector vector, final int rowCount) throws UnsupportedOperationException;
+    IMemoryAllocator get(final ColumnVector vector, final int rowCount) throws UnsupportedOperationException;
   }
 }
 

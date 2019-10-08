@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.apache.spark.sql.types.*;
-import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
@@ -32,18 +32,18 @@ import jp.co.yahoo.yosegi.inmemory.NullMemoryAllocator;
 
 public class SparkStructMemoryAllocator implements IMemoryAllocator{
 
-  private final WritableColumnVector vector;
+  private final ColumnVector vector;
   private final int vectorSize;
   private final Map<String,IMemoryAllocator> keyNameMap;
 
-  public SparkStructMemoryAllocator( final WritableColumnVector vector , final int vectorSize , final StructType st ){
+  public SparkStructMemoryAllocator( final ColumnVector vector , final int vectorSize , final StructType st ){
     this.vector = vector;
     this.vectorSize = vectorSize;
     keyNameMap = new HashMap<String,IMemoryAllocator>();
     String[] names = st.fieldNames();
     for( int i = 0 ; i < names.length ; i++ ){
-      vector.getChild( i ).reserve( vectorSize );
-      keyNameMap.put( names[i] , SparkMemoryAllocatorFactory.get( vector.getChild( i ) , vectorSize ) );
+      vector.getChildColumn( i ).reserve( vectorSize );
+      keyNameMap.put( names[i] , SparkMemoryAllocatorFactory.get( vector.getChildColumn( i ) , vectorSize ) );
     }
   }
 

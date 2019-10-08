@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.apache.spark.sql.types.*;
-import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
@@ -32,13 +32,13 @@ import jp.co.yahoo.yosegi.inmemory.NullMemoryAllocator;
 
 public class SparkMapMemoryAllocator implements IMemoryAllocator{
 
-  private final WritableColumnVector vector;
+  private final ColumnVector vector;
   private final int vectorSize;
 
   private String[] keys;
   private int createCount;
 
-  public SparkMapMemoryAllocator( final WritableColumnVector vector , final int vectorSize ){
+  public SparkMapMemoryAllocator( final ColumnVector vector , final int vectorSize ){
     this.vector = vector;
     this.vectorSize = vectorSize;
   }
@@ -62,15 +62,15 @@ public class SparkMapMemoryAllocator implements IMemoryAllocator{
 
   @Override
   public void setChildCount( final int childSize ) throws IOException{
-    vector.getChild( 0 ).reserve( vectorSize * childSize );
-    vector.getChild( 1 ).reserve( vectorSize * childSize );
+    vector.getChildColumn( 0 ).reserve( vectorSize * childSize );
+    vector.getChildColumn( 1 ).reserve( vectorSize * childSize );
     keys = new String[ childSize ];
     createCount = 0;
   }
 
   @Override
   public IMemoryAllocator getChild( final String columnName , final ColumnType type ) throws IOException{
-    IMemoryAllocator wrapAllocator = new MapValueMemoryAllocator( keys.length , createCount , SparkMemoryAllocatorFactory.get( vector.getChild( 1 ) , vectorSize ) );
+    IMemoryAllocator wrapAllocator = new MapValueMemoryAllocator( keys.length , createCount , SparkMemoryAllocatorFactory.get( vector.getChildColumn( 1 ) , vectorSize ) );
     createCount++;
     return wrapAllocator;
   }

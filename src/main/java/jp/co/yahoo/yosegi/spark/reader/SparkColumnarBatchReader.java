@@ -24,12 +24,14 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.spark.memory.MemoryMode;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.types.*;
-import org.apache.spark.sql.vectorized.ColumnarBatch;
+import org.apache.spark.sql.execution.vectorized.ColumnarBatch;
 import org.apache.spark.sql.execution.vectorized.OnHeapColumnVector;
-import org.apache.spark.sql.execution.vectorized.WritableColumnVector;
+import org.apache.spark.sql.execution.vectorized.ColumnVector;
+import org.apache.spark.sql.execution.vectorized.ColumnVectorUtils;
 
 import jp.co.yahoo.yosegi.config.Configuration;
 
@@ -41,7 +43,6 @@ import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
 import jp.co.yahoo.yosegi.spread.expression.IExpressionNode;
 
-import jp.co.yahoo.yosegi.spark.utils.PartitionColumnUtil;
 import jp.co.yahoo.yosegi.spark.inmemory.SparkMemoryAllocatorFactory;
 
 public class SparkColumnarBatchReader implements IColumnarBatchReader{
@@ -51,11 +52,10 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
   private final StructType partitionSchema;
   private final InternalRow partitionValue;
   private final IExpressionNode node;
-  private final ColumnarBatch result;
-  private final WritableColumnVector[] childColumns;
   private final StructField[] fields;
   private final Map<String,Integer> keyIndexMap = new HashMap<String,Integer>();
 
+  private StructType batchSchema;
   private int currentSpreadSize = 0;
 
   public SparkColumnarBatchReader( 
@@ -74,13 +74,34 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
     this.node = node;
     reader = new YosegiReader();
     reader.setBlockSkipIndex( node );
-    reader.setNewStream( in , fileLength , config , start , length );
-    childColumns = new OnHeapColumnVector[schema.length()+partitionSchema.length()];
-    result = new ColumnarBatch( childColumns );
     fields = schema.fields();
     for( int i = 0 ; i < fields.length ; i++ ){
       keyIndexMap.put( fields[i].name() , i );
     }
+
+    batchSchema = new StructType();
+    for( StructField f: schema.fields() ){
+      batchSchema = batchSchema.add(f);
+    }
+    if( partitionSchema != null ){
+      for( StructField f : partitionSchema.fields() ){
+        batchSchema = batchSchema.add(f);
+      }
+    }
+
+    reader.setNewStream( in , fileLength , config , start , length );
+  }
+
+  public ColumnarBatch createColumnarBatch( final StructType batchSchema , final StructType schema , final StructType partitionSchema , final InternalRow partitionValue , final int rows ){
+    ColumnarBatch result = ColumnarBatch.allocate( batchSchema , MemoryMode.ON_HEAP , rows );
+    if( partitionSchema != null ){
+      int partitionIdx = schema.fields().length;
+      for( int i = 0; i < partitionSchema.fields().length; i++ ){
+        ColumnVectorUtils.populate( result.column( i + partitionIdx ) , partitionValue, i );
+        result.column( i + partitionIdx ).setIsConstant();
+      }
+    }
+    return result;
   }
 
   @Override
@@ -95,13 +116,9 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
   @Override
   public ColumnarBatch next() throws IOException{
     if( ! hasNext() ){
+      ColumnarBatch result = createColumnarBatch( batchSchema , schema , partitionSchema , partitionValue , 0 );
       result.setNumRows( 0 );
       return result;
-    }
-    for( int i = 0 ; i < childColumns.length ; i++ ){
-      if ( childColumns[i] != null ) {
-        childColumns[i].reset();
-      }
     }
     List<ColumnBinary> columnBinaryList = reader.nextRaw();
     if( node != null ){
@@ -112,20 +129,13 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
       }
       List<Integer> blockIndexList = node.getBlockSpreadIndex( blockIndexNode );
       if( blockIndexList != null && blockIndexList.isEmpty() ){
-        result.setNumRows( 0 );
+        ColumnarBatch result = createColumnarBatch( batchSchema , schema , partitionSchema , partitionValue , 0 );
         return result;
       }
     }
 
     int spreadSize = reader.getCurrentSpreadSize();
-    boolean newCreate;
-    if( currentSpreadSize < spreadSize ){
-      currentSpreadSize = spreadSize;
-      newCreate = true;
-    }
-    else{
-      newCreate = false;
-    }
+    ColumnarBatch result = createColumnarBatch( batchSchema , schema , partitionSchema , partitionValue , spreadSize );
 
     for( ColumnBinary columnBinary : columnBinaryList ){
       if( ! keyIndexMap.containsKey( columnBinary.columnName ) ){
@@ -133,17 +143,10 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
       }
       int index =  keyIndexMap.get( columnBinary.columnName ).intValue();
       IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
-      if ( childColumns[index] == null || newCreate ) {
-        childColumns[index] = new OnHeapColumnVector( spreadSize , fields[index].dataType() );
-      } else {
-        childColumns[index].reserve( spreadSize );
-      }
-      IMemoryAllocator childMemoryAllocator = SparkMemoryAllocatorFactory.get( childColumns[index] , spreadSize );
+      ColumnVector childColumn = result.column( index );
+      childColumn.reserve( spreadSize );
+      IMemoryAllocator childMemoryAllocator = SparkMemoryAllocatorFactory.get( childColumn , spreadSize );
       maker.loadInMemoryStorage( columnBinary , childMemoryAllocator );
-    }
-    WritableColumnVector[] partColumns = PartitionColumnUtil.createPartitionColumns( partitionSchema , partitionValue , spreadSize );
-    for( int i = schema.length() , n = 0 ; i < childColumns.length ; i++,n++ ){
-      childColumns[i] = partColumns[n];
     }
     result.setNumRows( spreadSize );
     return result;
@@ -152,11 +155,6 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
   @Override
   public void close() throws IOException{
     reader.close();
-    for( int i = 0 ; i < childColumns.length ; i++ ){
-      if( childColumns[i] != null ){
-       childColumns[i].close();
-      }
-    }
   }
 
 }
