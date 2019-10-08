@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-name := "Yosegi Spark"
+name := "Yosegi Spark v2.4.0"
 version := "1.0"
 scalaVersion := "2.11.8"
 fork := true
@@ -33,7 +33,7 @@ libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.
 libraryDependencies += "org.apache.spark" % "spark-core_2.11" % "2.4.0"
 libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % "2.4.0"
 
-libraryDependencies += "jp.co.yahoo.yosegi" % "yosegi" % "0.10.7"
+libraryDependencies += "jp.co.yahoo.yosegi" % "yosegi" % "1.0.0"
 
 
 // release for Maven
