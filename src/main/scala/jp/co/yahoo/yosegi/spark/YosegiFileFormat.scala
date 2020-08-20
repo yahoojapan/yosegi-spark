@@ -145,7 +145,7 @@ class YosegiFileFormat extends FileFormat with DataSourceRegister with Serializa
       }
       reader.setLineFilterNode( node )
       val itr = new InternalRowIterator( reader )
-      Option( TaskContext.get() ).foreach( _.addTaskCompletionListener( _ => itr.close() ) )
+      Option( TaskContext.get() ).foreach( _.addTaskCompletionListener[Unit]( _ => itr.close() ) )
 
       itr.asInstanceOf[Iterator[InternalRow]]
     }

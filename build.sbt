@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-name := "Yosegi Spark v2.4.0"
+name := "Yosegi Spark v3.0.0"
 version := "1.0"
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.10"
 fork := true
 organization := "jp.co.yahoo.yosegi"
 
@@ -28,10 +28,10 @@ libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % Test exclud
 
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.9.8"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.8"
-libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.9.8"
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.8"
 
-libraryDependencies += "org.apache.spark" % "spark-core_2.11" % "2.4.0"
-libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % "2.4.0"
+libraryDependencies += "org.apache.spark" % "spark-core_2.12" % "3.0.0"
+libraryDependencies += "org.apache.spark" % "spark-sql_2.12" % "3.0.0"
 
 libraryDependencies += "jp.co.yahoo.yosegi" % "yosegi" % "1.0.0"
 
