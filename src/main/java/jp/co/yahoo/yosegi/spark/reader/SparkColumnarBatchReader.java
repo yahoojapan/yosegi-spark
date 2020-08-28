@@ -80,6 +80,7 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
     fields = schema.fields();
     for( int i = 0 ; i < fields.length ; i++ ){
       keyIndexMap.put( fields[i].name() , i );
+      childColumns[i] = new OnHeapColumnVector( 0 , fields[i].dataType() );
     }
   }
 
@@ -98,11 +99,6 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
       result.setNumRows( 0 );
       return result;
     }
-    for( int i = 0 ; i < childColumns.length ; i++ ){
-      if ( childColumns[i] != null ) {
-        childColumns[i].reset();
-      }
-    }
     List<ColumnBinary> columnBinaryList = reader.nextRaw();
     if( node != null ){
       BlockIndexNode blockIndexNode = new BlockIndexNode();
@@ -118,28 +114,26 @@ public class SparkColumnarBatchReader implements IColumnarBatchReader{
     }
 
     int spreadSize = reader.getCurrentSpreadSize();
-    boolean newCreate;
-    if( currentSpreadSize < spreadSize ){
-      currentSpreadSize = spreadSize;
-      newCreate = true;
-    }
-    else{
-      newCreate = false;
+    for( int i = 0 ; i < childColumns.length ; i++ ){
+      childColumns[i].reset();
+      childColumns[i].reserve( spreadSize );
     }
 
+    boolean[] isSet = new boolean[childColumns.length];
     for( ColumnBinary columnBinary : columnBinaryList ){
       if( ! keyIndexMap.containsKey( columnBinary.columnName ) ){
         continue;
       }
       int index =  keyIndexMap.get( columnBinary.columnName ).intValue();
+      isSet[index] = true;
       IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
-      if ( childColumns[index] == null || newCreate ) {
-        childColumns[index] = new OnHeapColumnVector( spreadSize , fields[index].dataType() );
-      } else {
-        childColumns[index].reserve( spreadSize );
-      }
       IMemoryAllocator childMemoryAllocator = SparkMemoryAllocatorFactory.get( childColumns[index] , spreadSize );
       maker.loadInMemoryStorage( columnBinary , childMemoryAllocator );
+    }
+    for( int i = 0 ; i < childColumns.length ; i++ ){
+      if( ! isSet[i] ) {
+        childColumns[i].putNulls( 0 , spreadSize );
+      }
     }
     WritableColumnVector[] partColumns = PartitionColumnUtil.createPartitionColumns( partitionSchema , partitionValue , spreadSize );
     for( int i = schema.length() , n = 0 ; i < childColumns.length ; i++,n++ ){
