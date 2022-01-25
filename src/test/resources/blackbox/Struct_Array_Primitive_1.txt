@@ -1,0 +1,13 @@
+{"id":0, "sa":{"ai":[1,2,3],"as":["v1","v2","v3"]}}
+{"id":3, "sa":{}}
+{"id":4, "sa":{"ai":null}}
+{"id":5, "sa":{"ai":[]}}
+{"id":6, "sa":{"ai":[null]}}
+{"id":7, "sa":{"ai":null,"as":null}}
+{"id":8, "sa":{"ai":[],"as":[]}}
+{"id":9, "sa":{"ai":[null],"as":[null]}}
+{"id":10, "sa":{"ai":null,"as":["v1","v2","v3"]}}
+{"id":11, "sa":{"ai":[],"as":["v1","v2","v3"]}}
+{"id":12, "sa":{"ai":[null],"as":["v1","v2","v3"]}}
+{"id":13, "sa":{"ai":[null,2,null],"as":[null,"v2",null]}}
+{"id":14, "sa":{"ai":[1,null,3],"as":["v1",null,"v3"]}}

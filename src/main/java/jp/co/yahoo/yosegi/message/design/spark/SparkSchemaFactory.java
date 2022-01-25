@@ -37,7 +37,7 @@ public class SparkSchemaFactory{
         }
         return DataTypes.createArrayType( getDataType( childSchema ) , true );
       case MAP:
-        return DataTypes.createMapType( new StringType() , getDataType( ( (MapContainerField)schema ).getField() ) , true );
+        return DataTypes.createMapType( DataTypes.StringType , getDataType( ( (MapContainerField)schema ).getField() ) , true );
       case STRUCT:
         StructContainerField structFiled = (StructContainerField)schema;
         String[] keys = structFiled.getKeys();
