@@ -87,7 +87,7 @@ workflows:
             mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml
           mvn-release-prepare-command: |
             mvn --batch-mode release:prepare -DscmCommentPrefix="[skip ci][maven-release-plugin] " -DdryRun=true -s .circleci/.maven.xml
-          ssh-fingerprints: <FINGERPRINTS>
+          ssh-fingerprints: fb:05:d0:62:fb:17:56:d9:25:53:89:34:4b:b6:d3:e3
       - approve:
           type: approval
           <<: *branch_only
@@ -97,4 +97,4 @@ workflows:
           <<: *branch_only
           requires:
             - approve
-          ssh-fingerprints: <FINGERPRINTS>
+          ssh-fingerprints: fb:05:d0:62:fb:17:56:d9:25:53:89:34:4b:b6:d3:e3
