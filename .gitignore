@@ -61,3 +61,5 @@ jars
 ## sbt build
 /project/build.properties
 
+.bsp
+.scala-version
