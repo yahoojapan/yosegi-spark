@@ -34,4 +34,4 @@ We welcome to join this project widely.
 
 Compile each source following instructions.
 
-    $ sbt clean package
+    $ mvn clean package
