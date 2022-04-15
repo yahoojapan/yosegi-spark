@@ -14,7 +14,7 @@
 
     <groupId>jp.co.yahoo.yosegi</groupId>
     <artifactId>yosegi-spark</artifactId>
-    <version>1.2.0_spark-2.4-scala-2.11-SNAPSHOT</version>
+    <version>1.2.0_spark-2.4-scala-2.11</version>
     <packaging>jar</packaging>
     <name>Yosegi Spark</name>
     <description>Yosegi Spark library.</description>
@@ -31,7 +31,7 @@
         <connection>scm:git:git@github.com:yahoojapan/yosegi-spark.git</connection>
         <developerConnection>scm:git:git@github.com:yahoojapan/yosegi-spark.git</developerConnection>
         <url>scm:git:https://github.com/yahoojapan/yosegi-spark</url>
-        <tag>HEAD</tag>
+        <tag>yosegi-spark-1.2.0_spark-2.4-scala-2.11</tag>
     </scm>
 
     <organization>
