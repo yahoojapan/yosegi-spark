@@ -61,11 +61,11 @@ jobs:
           path: ~/site
 
 custom_filters:
-  master_only: &branch_only
+  merge_only: &merge_only
     filters:
       branches:
         only: "spark-2.4"
-  master_ignore: &branch_ignore
+  merge_ignore: &merge_ignore
     filters:
       branches:
         ignore: "spark-2.4"
@@ -74,13 +74,13 @@ workflows:
   build-and-test:
     jobs:
       - build:
-          <<: *branch_ignore
+          <<: *merge_ignore
   run-release:
     jobs:
       - build:
-          <<: *branch_only
+          <<: *merge_only
       - sonatype-dryrun/run-maven-release:
-          <<: *branch_only
+          <<: *merge_only
           requires:
             - build
           mvn-release-perform-command: |
@@ -90,11 +90,11 @@ workflows:
           ssh-fingerprints: fb:05:d0:62:fb:17:56:d9:25:53:89:34:4b:b6:d3:e3
       - approve:
           type: approval
-          <<: *branch_only
+          <<: *merge_only
           requires:
             - sonatype-dryrun/run-maven-release
       - sonatype/run-maven-release:
-          <<: *branch_only
+          <<: *merge_only
           requires:
             - approve
           ssh-fingerprints: fb:05:d0:62:fb:17:56:d9:25:53:89:34:4b:b6:d3:e3
