@@ -333,7 +333,7 @@
                 <configuration>
                     <releaseProfiles>gpg-sign</releaseProfiles>
                     <releaseVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}_spark-${spark.base}-scala-${scala.base}</releaseVersion>
-                    <developmentVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}_spark-${scala.base}-scala-${scala.base}-SNAPSHOT</developmentVersion>
+                    <developmentVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}_spark-${spark.base}-scala-${scala.base}-SNAPSHOT</developmentVersion>
                 </configuration>
             </plugin>
         </plugins>
