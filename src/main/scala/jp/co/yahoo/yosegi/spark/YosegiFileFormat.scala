@@ -34,6 +34,7 @@ import org.apache.spark.sql.sources.Filter
 import org.apache.spark.sql.sources.DataSourceRegister
 import org.apache.spark.sql.types.{StructType, DataType}
 import org.apache.spark.sql.vectorized.ColumnVector
+import org.apache.spark.util.SerializableConfiguration
 
 import jp.co.yahoo.yosegi.spread.expression.AndExpressionNode
 
