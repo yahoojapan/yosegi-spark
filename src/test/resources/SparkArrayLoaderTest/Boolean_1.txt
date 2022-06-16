@@ -1,0 +1,7 @@
+[true,false,true]
+[]
+[null,"b",null]
+[false,true,false]
+[true,null,false]
+[true,false]
+[true]

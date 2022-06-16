@@ -1,0 +1,7 @@
+{"bo":true,"by":-128,"bi":"aaa","do":-1.7976931348623157e+308,"fl":-3.402823e+37,"in":-2147483648,"lo":-9223372036854775808,"sh":-32768,"st":"bbb"}
+{"bo":false,"by":127,"bi":"aaa","do":1.7976931348623157e+308,"fl":3.402823e+38,"in":2147483647,"lo":9223372036854775807,"sh":32767,"st":"bbb"}
+{}
+{"bo":null,"by":null,"bi":null,"do":null,"fl":null,"in":null,"lo":null,"sh":null,"st":null}
+{"bo":true,"by":-128,"bi":"aaa"}
+{"bo":null,"by":-128,"bi":null}
+{"bo":true,"by":null,"bi":"aaa"}

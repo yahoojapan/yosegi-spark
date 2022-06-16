@@ -13,8 +13,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>jp.co.yahoo.yosegi</groupId>
-    <artifactId>yosegi-spark</artifactId>
-    <version>1.2.1_spark-3.2-scala-2.12-SNAPSHOT</version>
+    <artifactId>yosegi-spark_2.12</artifactId>
+    <version>2.0.1_spark-3.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Yosegi Spark</name>
     <description>Yosegi Spark library.</description>
@@ -56,8 +56,8 @@
         <buildtype>test</buildtype>
         <spotbugs-maven-plugin.version>3.1.8</spotbugs-maven-plugin.version>
         <spotbugs.version>3.1.9</spotbugs.version>
-        <yosegi.base>1.2</yosegi.base>
-        <yosegi.version>${yosegi.base}.1</yosegi.version>
+        <yosegi.base>2.0</yosegi.base>
+        <yosegi.version>${yosegi.base}.2</yosegi.version>
         <spark.base>3.2</spark.base>
         <spark.version>${spark.base}.1</spark.version>
         <scala.base>2.12</scala.base>
@@ -113,9 +113,21 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -211,6 +223,7 @@
                         <exclude>jars/**</exclude>
                         <exclude>bin/*</exclude>
                         <exclude>project/**</exclude>
+                        <exclude>src/test/resources/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -332,8 +345,8 @@
                 <version>2.5.3</version>
                 <configuration>
                     <releaseProfiles>gpg-sign</releaseProfiles>
-                    <releaseVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}_spark-${spark.base}-scala-${scala.base}</releaseVersion>
-                    <developmentVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}_spark-${spark.base}-scala-${scala.base}-SNAPSHOT</developmentVersion>
+                    <releaseVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}_spark-${spark.base}</releaseVersion>
+                    <developmentVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.nextIncrementalVersion}_spark-${spark.base}-SNAPSHOT</developmentVersion>
                 </configuration>
             </plugin>
         </plugins>
