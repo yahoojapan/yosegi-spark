@@ -1,0 +1,7 @@
+{"bo1":true,"bo2":false,"bo3":true}
+{"bo2":true,"bo3":false,"bo4":true}
+{}
+{"bo1":null,"bo2":true,"bo3":null}
+{"bo2":true,"bo3":null,"bo4":false}
+{"bo5":true,"bo6":false}
+{"bo5":true}

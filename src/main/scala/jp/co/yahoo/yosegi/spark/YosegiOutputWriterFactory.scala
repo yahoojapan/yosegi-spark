@@ -40,7 +40,7 @@ class YosegiOutputWriterFactory extends OutputWriterFactory{
     def reader:SparkMessageReader = new SparkMessageReader( dataSchema )
     def fs:FileSystem = FileSystem.get( context.getConfiguration() )
     def writer:YosegiRecordWriter = new YosegiRecordWriter( fs.create( new Path( path ) ) , ConfigUtil.createConfig )
-    new YosegiOutputWriter( reader , writer, path )
+    new YosegiOutputWriter( reader , writer )
   }
 
   override def getFileExtension(context: TaskAttemptContext): String = {
@@ -49,7 +49,7 @@ class YosegiOutputWriterFactory extends OutputWriterFactory{
 
 }
 
-class YosegiOutputWriter( reader:SparkMessageReader , writer:YosegiRecordWriter, path:String ) extends OutputWriter{
+class YosegiOutputWriter( reader:SparkMessageReader , writer:YosegiRecordWriter ) extends OutputWriter{
 
   override def write( row: InternalRow ): Unit = {
     writer.addParserRow( reader.create( row ) );
@@ -59,5 +59,4 @@ class YosegiOutputWriter( reader:SparkMessageReader , writer:YosegiRecordWriter,
     writer.close();
   }
 
-  override def path(): String = path
 }
