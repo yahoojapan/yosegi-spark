@@ -64,11 +64,11 @@ custom_filters:
   merge_only: &merge_only
     filters:
       branches:
-        only: "yosegi-2.0_spark-3.2"
+        only: "yosegi-2.0_spark-3.3"
   merge_ignore: &merge_ignore
     filters:
       branches:
-        ignore: "yosegi-2.0_spark-3.2"
+        ignore: "yosegi-2.0_spark-3.3"
 
 workflows:
   build-and-test:
