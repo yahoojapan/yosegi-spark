@@ -82,12 +82,12 @@ class ProjectionPushdownUtilVariantV2Test {
   }
 
   @Test
-  void T_createProjectionPushdownJson_NormalStructRemainsTopLevel() {
+  void T_createProjectionPushdownJson_NormalStructPushesDownNestedFields() {
     final StructType normalStruct =
         new StructType().add("id", DataTypes.LongType).add("name", DataTypes.StringType);
     final StructType schema = new StructType().add("v", normalStruct);
     assertEquals(
-        "[[\"v\"]]", ProjectionPushdownUtil.createProjectionPushdownJson(schema));
+        "[[\"v\",\"id\"],[\"v\",\"name\"]]", ProjectionPushdownUtil.createProjectionPushdownJson(schema));
   }
 
   private static Metadata createVariantMetadata(final String path) {

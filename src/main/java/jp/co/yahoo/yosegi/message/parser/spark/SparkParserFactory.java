@@ -32,7 +32,6 @@ public final class SparkParserFactory{
     if( row == null || row.isNullAt( ordinal ) ){
       return new SparkNullParser();
     }
-
     if( schema instanceof ArrayType ){
       ArrayType arrayType = (ArrayType)schema;
       ArrayData arrayData = (ArrayData)( row.getArray( ordinal ) );
