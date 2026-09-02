@@ -51,7 +51,7 @@ public class SparkStructParser implements IParser {
 
   @Override
   public PrimitiveObject get( final int index ) throws IOException{
-    if( childSchemas.length <= index ){
+    if( row == null || childSchemas.length <= index ){
       return NullObj.getInstance();
     }
     return SparkRowToPrimitiveObject.get( childSchemas[index].dataType() , row , index );
@@ -68,7 +68,7 @@ public class SparkStructParser implements IParser {
 
   @Override
   public IParser getParser( final int index ) throws IOException{
-    if( childSchemas.length <= index ){
+    if( row == null || childSchemas.length <= index ){
       return new SparkNullParser();
     }
     
