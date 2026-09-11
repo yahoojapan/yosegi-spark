@@ -43,7 +43,7 @@ public class SparkMapParser implements IParser {
   public SparkMapParser( final MapType schema , final MapData row ) throws IOException{
     keyIndex = new HashMap<String,Integer>();
     DataType keySchema = schema.keyType();
-    if( ! ( keySchema instanceof StringType ) ){
+    if( row == null || ! ( keySchema instanceof StringType ) ){
       childObjArray = new PrimitiveObject[0];
       childParserArray = new IParser[0];
       keyArray = new String[0];
