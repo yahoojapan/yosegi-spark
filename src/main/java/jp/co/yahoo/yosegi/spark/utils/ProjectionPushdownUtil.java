@@ -17,23 +17,49 @@
  */
 package jp.co.yahoo.yosegi.spark.utils;
 
-import org.apache.spark.sql.types.StructType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 
-public final class ProjectionPushdownUtil{
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.List;
 
-  public static String createProjectionPushdownJson( final StructType requiredSchema ){
-    StructField[] fields = requiredSchema.fields();
-    StringBuffer buffer = new StringBuffer();
-    buffer.append( "[" );
-    for( int i = 0 ; i < fields.length ; i++ ){
-      if( i != 0){
-        buffer.append( "," );
-      }
-      buffer.append( String.format( "[\"%s\"]" , fields[i].name() ) );
+public final class ProjectionPushdownUtil {
+
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  private ProjectionPushdownUtil() {}
+
+  public static String createProjectionPushdownJson( final StructType requiredSchema ) {
+    if ( requiredSchema == null || requiredSchema.fields().length == 0 ) {
+      return "[]";
     }
-    buffer.append( "]" );
-    return buffer.toString();
+    List<List<String>> paths = new ArrayList<>();
+    collectPaths( requiredSchema, new ArrayList<String>(), paths );
+    try {
+      return OBJECT_MAPPER.writeValueAsString( paths );
+    } catch ( IOException e ) {
+      throw new UncheckedIOException( e );
+    }
+  }
+
+  private static void collectPaths(
+      final StructType structType,
+      final List<String> currentPath,
+      final List<List<String>> result ) {
+    for ( StructField field : structType.fields() ) {
+      List<String> nextPath = new ArrayList<>( currentPath );
+      nextPath.add( field.name() );
+      DataType dataType = field.dataType();
+      if ( dataType instanceof StructType && ( (StructType) dataType ).fields().length > 0 ) {
+        collectPaths( (StructType) dataType, nextPath, result );
+      } else {
+        result.add( nextPath );
+      }
+    }
   }
 
 }
