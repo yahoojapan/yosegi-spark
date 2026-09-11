@@ -61,7 +61,7 @@
         <spark.version>${spark.base}.0</spark.version>
         <scala.base>2.13</scala.base>
         <scala.version>${scala.base}.18</scala.version>
-        <jackson.version>2.21.2</jackson.version>
+        <jackson.version>2.21.5</jackson.version>
     </properties>
 
     <dependencies>
