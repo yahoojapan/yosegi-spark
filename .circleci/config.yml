@@ -4,6 +4,14 @@ orbs:
   sonatype: sonatype-nexus-community/circleci-maven-release-orb@0.0.20
   sonatype-dryrun: sonatype-nexus-community/circleci-maven-release-orb@0.0.20
 
+executors:
+  java8-release:
+    docker:
+      - image: circleci/openjdk:8u171-jdk
+    working_directory: ~/repo
+    environment:
+      MAVEN_OPTS: -Xmx1536m
+
 jobs:
   build:
     docker:
@@ -81,6 +89,7 @@ workflows:
           <<: *merge_only
       - sonatype-dryrun/run-maven-release:
           <<: *merge_only
+          executor: java8-release
           requires:
             - build
           mvn-release-perform-command: |
@@ -95,6 +104,7 @@ workflows:
             - sonatype-dryrun/run-maven-release
       - sonatype/run-maven-release:
           <<: *merge_only
+          executor: java8-release
           requires:
             - approve
           mvn-release-perform-command: |
