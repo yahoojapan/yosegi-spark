@@ -4,11 +4,19 @@ orbs:
   sonatype: sonatype-nexus-community/circleci-maven-release-orb@0.0.20
   sonatype-dryrun: sonatype-nexus-community/circleci-maven-release-orb@0.0.20
 
+executors:
+  java8-release:
+    docker:
+      - image: maven:3.8.8-eclipse-temurin-8
+    working_directory: ~/repo
+    environment:
+      MAVEN_OPTS: -Xmx1024m
+
 jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:8u171-jdk
+      - image: maven:3.8.8-eclipse-temurin-8
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -19,7 +27,7 @@ jobs:
 
     environment:
       # Customize the JVM maximum heap limit
-      MAVEN_OPTS=-Xmx3600m 
+      MAVEN_OPTS: -Xmx1536m 
     
     steps:
       - checkout
@@ -81,6 +89,11 @@ workflows:
           <<: *merge_only
       - sonatype-dryrun/run-maven-release:
           <<: *merge_only
+          executor: java8-release
+          pre-steps:
+            - run:
+                name: Install release dependencies
+                command: apt-get update && apt-get install -y gnupg openssh-client
           requires:
             - build
           mvn-release-perform-command: |
@@ -95,6 +108,11 @@ workflows:
             - sonatype-dryrun/run-maven-release
       - sonatype/run-maven-release:
           <<: *merge_only
+          executor: java8-release
+          pre-steps:
+            - run:
+                name: Install release dependencies
+                command: apt-get update && apt-get install -y gnupg openssh-client
           requires:
             - approve
           mvn-release-perform-command: |
