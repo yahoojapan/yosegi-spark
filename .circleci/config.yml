@@ -90,6 +90,10 @@ workflows:
       - sonatype-dryrun/run-maven-release:
           <<: *merge_only
           executor: java8-release
+          pre-steps:
+            - run:
+              name: Install GPG
+              command: apt-get update && apt-get install -y gnupg
           requires:
             - build
           mvn-release-perform-command: |
@@ -105,6 +109,10 @@ workflows:
       - sonatype/run-maven-release:
           <<: *merge_only
           executor: java8-release
+          pre-steps:
+            - run:
+              name: Install GPG
+              command: apt-get update && apt-get install -y gnupg
           requires:
             - approve
           mvn-release-perform-command: |
