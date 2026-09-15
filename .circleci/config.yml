@@ -7,7 +7,7 @@ orbs:
 executors:
   java8-release:
     docker:
-      - image: circleci/openjdk:8u171-jdk
+      - image: maven:3.8.8-eclipse-temurin-8
     working_directory: ~/repo
     environment:
       MAVEN_OPTS: -Xmx1536m
@@ -16,7 +16,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:8u171-jdk
+      - image: maven:3.8.8-eclipse-temurin-8
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
