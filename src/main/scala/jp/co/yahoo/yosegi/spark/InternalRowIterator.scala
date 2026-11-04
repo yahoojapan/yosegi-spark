@@ -18,17 +18,42 @@
 package jp.co.yahoo.yosegi.spark
 
 import java.io.Closeable
+import java.util.Collections
 
 import jp.co.yahoo.yosegi.spark.reader.IColumnarBatchReader
+import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.UnsafeProjection
+import org.apache.spark.sql.types.StructType
 
-class InternalRowIterator( reader:IColumnarBatchReader ) extends Iterator[Object] with Closeable{
+class InternalRowIterator( reader:IColumnarBatchReader , returningBatch:Boolean , rowSchema:StructType )
+    extends Iterator[Object] with Closeable{
+
+  def this( reader:IColumnarBatchReader ) = this( reader , true , new StructType() )
+
+  private var rows:java.util.Iterator[InternalRow] = Collections.emptyList[InternalRow]().iterator()
+  private val projection = if( returningBatch ) None else Some(UnsafeProjection.create(rowSchema))
 
   override def hasNext(): Boolean = {
-    reader.hasNext()
+    if( returningBatch ){
+      reader.hasNext()
+    } else {
+      while( !rows.hasNext() && reader.hasNext() ){
+        rows = reader.next().rowIterator()
+      }
+      rows.hasNext()
+    }
   }
 
   override def next(): Object = {
-    reader.next()
+    if( returningBatch ){
+      reader.next()
+    } else {
+      if( !hasNext() ){
+        throw new NoSuchElementException()
+      }
+      // Both the reader's vectors and UnsafeProjection's result are reused for later rows.
+      projection.get(rows.next()).copy()
+    }
   }
 
   override def close(): Unit = {
