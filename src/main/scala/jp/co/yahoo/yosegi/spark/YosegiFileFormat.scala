@@ -112,7 +112,7 @@ class YosegiFileFormat extends FileFormat with DataSourceRegister with Serializa
     val expandOption:Option[String] = options.get( "spread.reader.expand.column" )
     val flattenOption:Option[String] = options.get( "spread.reader.flatten.column" )
     val enableArrowReader:Option[String] = options.get( "spark.yosegi.enable.arrow.reader" )
-    val returningBatch = options.getOrElse(FileFormat.OPTION_RETURNING_BATCH, "false").toBoolean
+    val returningBatch = options.getOrElse( FileFormat.OPTION_RETURNING_BATCH , "false" ).toBoolean
     ( file: PartitionedFile ) => {
       val node = new AndExpressionNode()
       filters.map( FilterConnectorFactory.get( _ ) ).filter( _ != null ).foreach( node.addChildNode( _ ) )
@@ -139,8 +139,8 @@ class YosegiFileFormat extends FileFormat with DataSourceRegister with Serializa
         reader = new SparkColumnarBatchReader( partSchema.asInstanceOf[StructType] , file.partitionValues , readSchema.asInstanceOf[StructType] , fs.open( path ) , fs.getFileStatus( path ).getLen() , file.start , file.length , yosegiConfig , node )
       }
       reader.setLineFilterNode( node )
-      val rowSchema = new StructType(readSchema.asInstanceOf[StructType].fields ++
-        partSchema.asInstanceOf[StructType].fields)
+      val rowSchema = new StructType( readSchema.asInstanceOf[StructType].fields ++
+        partSchema.asInstanceOf[StructType].fields )
       val itr = new InternalRowIterator( reader , returningBatch , rowSchema )
       Option( TaskContext.get() ).foreach( _.addTaskCompletionListener[Unit]( _ => itr.close() ) )
 

@@ -21,10 +21,10 @@ import org.apache.spark.sql.SparkSessionExtensions
 import org.apache.spark.sql.yosegi.{ConvertYosegiHiveTables, PruneYosegiSchema}
 
 /** Opt-in nested column pruning for Yosegi DataSource and Hive reads on Spark 3.5. */
-class YosegiSparkSessionExtensions extends (SparkSessionExtensions => Unit) {
-  override def apply(extensions: SparkSessionExtensions): Unit = {
+class YosegiSparkSessionExtensions extends ( SparkSessionExtensions => Unit ){
+  override def apply( extensions:SparkSessionExtensions ):Unit = {
     // Reuse Hive's static partition pruning before choosing the read implementation.
-    extensions.injectPreCBORule(spark => new ConvertYosegiHiveTables(spark))
-    extensions.injectPreCBORule(spark => new PruneYosegiSchema(spark))
+    extensions.injectPreCBORule( spark => new ConvertYosegiHiveTables( spark ) )
+    extensions.injectPreCBORule( spark => new PruneYosegiSchema( spark ) )
   }
 }

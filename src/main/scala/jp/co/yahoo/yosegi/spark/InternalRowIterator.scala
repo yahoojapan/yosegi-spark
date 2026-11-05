@@ -31,7 +31,7 @@ class InternalRowIterator( reader:IColumnarBatchReader , returningBatch:Boolean 
   def this( reader:IColumnarBatchReader ) = this( reader , true , new StructType() )
 
   private var rows:java.util.Iterator[InternalRow] = Collections.emptyList[InternalRow]().iterator()
-  private val projection = if( returningBatch ) None else Some(UnsafeProjection.create(rowSchema))
+  private val projection = if( returningBatch ) None else Some( UnsafeProjection.create( rowSchema ) )
 
   override def hasNext(): Boolean = {
     if( returningBatch ){
@@ -52,7 +52,7 @@ class InternalRowIterator( reader:IColumnarBatchReader , returningBatch:Boolean 
         throw new NoSuchElementException()
       }
       // Both the reader's vectors and UnsafeProjection's result are reused for later rows.
-      projection.get(rows.next()).copy()
+      projection.get( rows.next() ).copy()
     }
   }
 
