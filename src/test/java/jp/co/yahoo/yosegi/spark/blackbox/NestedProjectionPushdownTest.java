@@ -67,6 +67,7 @@ public class NestedProjectionPushdownTest {
         .appName(appName)
         .master("local[*]")
         .config("spark.sql.optimizer.nestedSchemaPruning.enabled", "true")
+        .config("spark.sql.extensions", "jp.co.yahoo.yosegi.spark.YosegiSparkSessionExtensions")
         .getOrCreate();
   }
 
@@ -341,6 +342,23 @@ public class NestedProjectionPushdownTest {
         assertEquals((Object) exp.getList(3), (Object) actual.getList(3));
       }
     }
+  }
+
+  @Test
+  void testSqlPrunesRequiredSchema() {
+    final String path = getTmpPath("testSqlPrunesRequiredSchema");
+    StructType nested = new StructType()
+        .add("unused", DataTypes.StringType)
+        .add("value", DataTypes.LongType);
+    StructType schema = new StructType().add("payload", nested);
+    spark.createDataFrame(Arrays.asList(RowFactory.create(RowFactory.create("unused", 7L))), schema)
+        .write().format("yosegi").save(path);
+    spark.read().schema(schema).format("yosegi").load(path)
+        .createOrReplaceTempView("nested_sql_projection");
+    Dataset<Row> selected = spark.sql("SELECT payload.value FROM nested_sql_projection");
+    String plan = selected.queryExecution().executedPlan().toString();
+    assertTrue(plan.contains("ReadSchema: struct<payload:struct<value:bigint>>"), plan);
+    assertEquals(Arrays.asList(RowFactory.create(7L)), selected.collectAsList());
   }
 
 }
