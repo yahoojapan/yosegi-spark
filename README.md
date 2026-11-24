@@ -27,6 +27,16 @@ For easy usage please read [quick start](docs/quickstart.md).
 
 For more detailed usage, please read the usage documentation.
 
+# Nested column pruning (Spark 3.3)
+
+Enable the session extension to prune unused Struct fields, including fields inside arrays, in SQL reads:
+
+```text
+spark.sql.extensions=jp.co.yahoo.yosegi.spark.YosegiSparkSessionExtensions
+```
+
+See [nested column pruning](docs/nested-column-pruning.md) for configuration and limitations.
+
 # How to contribute
 We welcome to join this project widely.
 
