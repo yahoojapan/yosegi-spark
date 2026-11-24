@@ -81,6 +81,18 @@
             <version>${spark.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-hive_${scala.base}</artifactId>
+            <version>${spark.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jp.co.yahoo.yosegi</groupId>
+            <artifactId>yosegi-hive</artifactId>
+            <version>2.0.9_hive-1.2.1000.2.6.4.0-91</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>jp.co.yahoo.yosegi</groupId>
             <artifactId>yosegi</artifactId>
             <version>${yosegi.version}</version>

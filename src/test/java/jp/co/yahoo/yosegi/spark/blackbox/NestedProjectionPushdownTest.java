@@ -67,6 +67,7 @@ public class NestedProjectionPushdownTest {
         .appName(appName)
         .master("local[*]")
         .config("spark.sql.optimizer.nestedSchemaPruning.enabled", "true")
+        .config("spark.sql.extensions", "jp.co.yahoo.yosegi.spark.YosegiSparkSessionExtensions")
         .getOrCreate();
   }
 
@@ -116,6 +117,9 @@ public class NestedProjectionPushdownTest {
 
     // Select nested columns: parent_a.f2 and parent_b.f4 (nested pruning active)
     Dataset<Row> selected = yosegiDf.select(col("id"), col("parent_a.f2"), col("parent_b.f4")).orderBy(col("id").asc());
+    String plan = selected.queryExecution().executedPlan().toString();
+    assertTrue(plan.contains("parent_a:struct<f2:string>"), plan);
+    assertTrue(plan.contains("parent_b:struct<f4:string>"), plan);
     List<Row> rows = selected.collectAsList();
 
     assertEquals(4, rows.size());

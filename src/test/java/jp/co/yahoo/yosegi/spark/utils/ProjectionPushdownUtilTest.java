@@ -132,7 +132,7 @@ public class ProjectionPushdownUtilTest {
     );
     String json = ProjectionPushdownUtil.createProjectionPushdownJson(schema);
     assertEquals(
-        "[[\"s\",\"arr\"],[\"s\",\"map\"],[\"s\",\"primitive\"]]",
+        "[[\"s\",\"arr\",\"f1\"],[\"s\",\"map\"],[\"s\",\"primitive\"]]",
         json
     );
   }
@@ -151,7 +151,72 @@ public class ProjectionPushdownUtilTest {
         )
     );
     String json = ProjectionPushdownUtil.createProjectionPushdownJson(schema);
-    assertEquals("[[\"arr\"],[\"map\"]]", json);
+    assertEquals("[[\"arr\",\"val\"],[\"map\"]]", json);
+  }
+
+  @Test
+  public void T_createProjectionPushdownJson_arrayOfStructs() {
+    StructType item = DataTypes.createStructType(
+        Arrays.asList(
+            DataTypes.createStructField("id", DataTypes.LongType, true),
+            DataTypes.createStructField("value", DataTypes.StringType, true)
+        )
+    );
+    StructType schema = DataTypes.createStructType(
+        Arrays.asList(
+            DataTypes.createStructField("items", DataTypes.createArrayType(item), true)
+        )
+    );
+
+    String json = ProjectionPushdownUtil.createProjectionPushdownJson(schema);
+
+    assertEquals("[[\"items\",\"id\"],[\"items\",\"value\"]]", json);
+  }
+
+  @Test
+  public void T_createProjectionPushdownJson_nestedArraysOfStructs() {
+    StructType leaf = DataTypes.createStructType(
+        Arrays.asList(
+            DataTypes.createStructField("code", DataTypes.IntegerType, true)
+        )
+    );
+    StructType record = DataTypes.createStructType(
+        Arrays.asList(
+            DataTypes.createStructField("name", DataTypes.StringType, true),
+            DataTypes.createStructField("groups", DataTypes.createArrayType(
+                DataTypes.createArrayType(leaf)), true)
+        )
+    );
+    StructType schema = DataTypes.createStructType(
+        Arrays.asList(
+            DataTypes.createStructField("records", DataTypes.createArrayType(record), true),
+            DataTypes.createStructField("primitive_array", DataTypes.createArrayType(
+                DataTypes.IntegerType), true),
+            DataTypes.createStructField("map", DataTypes.createMapType(
+                DataTypes.StringType, leaf), true)
+        )
+    );
+
+    String json = ProjectionPushdownUtil.createProjectionPushdownJson(schema);
+
+    assertEquals(
+        "[[\"records\",\"name\"],[\"records\",\"groups\",\"code\"],"
+            + "[\"primitive_array\"],[\"map\"]]",
+        json
+    );
+  }
+
+  @Test
+  public void T_createProjectionPushdownJson_arrayOfEmptyStruct() {
+    StructType schema = DataTypes.createStructType(
+        Arrays.asList(
+            DataTypes.createStructField("items", DataTypes.createArrayType(new StructType()), true)
+        )
+    );
+
+    String json = ProjectionPushdownUtil.createProjectionPushdownJson(schema);
+
+    assertEquals("[[\"items\"]]", json);
   }
 
   @Test

@@ -18,6 +18,7 @@
 package jp.co.yahoo.yosegi.spark.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.spark.sql.types.ArrayType;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
@@ -53,12 +54,20 @@ public final class ProjectionPushdownUtil {
     for ( StructField field : structType.fields() ) {
       List<String> nextPath = new ArrayList<>( currentPath );
       nextPath.add( field.name() );
-      DataType dataType = field.dataType();
-      if ( dataType instanceof StructType && ( (StructType) dataType ).fields().length > 0 ) {
-        collectPaths( (StructType) dataType, nextPath, result );
-      } else {
-        result.add( nextPath );
-      }
+      collectPaths( field.dataType(), nextPath, result );
+    }
+  }
+
+  private static void collectPaths(
+      final DataType dataType,
+      final List<String> currentPath,
+      final List<List<String>> result ) {
+    if ( dataType instanceof StructType && ( (StructType) dataType ).fields().length > 0 ) {
+      collectPaths( (StructType) dataType, currentPath, result );
+    } else if ( dataType instanceof ArrayType ) {
+      collectPaths( ( (ArrayType) dataType ).elementType(), currentPath, result );
+    } else {
+      result.add( currentPath );
     }
   }
 
